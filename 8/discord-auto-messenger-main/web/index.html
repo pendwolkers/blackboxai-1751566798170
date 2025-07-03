@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Auto Messenger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">Discord Auto Messenger</h1>
+            <p class="text-gray-600">Configure and manage your automated Discord messages</p>
+        </header>
+
+        <div class="space-y-6">
+            <!-- User Configuration -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">User Configuration</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label for="token" class="block text-sm font-medium text-gray-700 mb-1">Discord Token</label>
+                        <div class="flex gap-2">
+                            <input type="password" id="token" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <button onclick="verifyToken()" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
+                                Verify Token
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages Configuration -->
+            <div class="bg-white rounded-lg shadow-sm p-6 border-2 border-blue-200">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-semibold text-gray-900">Messages Configuration</h2>
+                    <button onclick="saveMessages()" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Save Messages
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label for="messages" class="block text-sm font-medium text-gray-700 mb-1">Messages (one message per line)</label>
+                        <textarea id="messages" rows="6" placeholder="Enter your messages here, one per line&#10;Example:&#10;Hello everyone!&#10;How are you doing?&#10;Have a great day!" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"></textarea>
+                    </div>
+                    <div class="flex items-center space-x-2 text-sm text-gray-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                        </svg>
+                        <span>Messages will be sent in the order they appear here</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Channel Selection -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-semibold text-gray-900">Channel Selection</h2>
+                    <button onclick="refreshChannels()" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Refresh Channels
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <!-- Server/Channel Tree -->
+                    <div class="border border-gray-200 rounded-md p-2 min-h-[200px] max-h-[400px] overflow-y-auto">
+                        <div id="serverTree" class="space-y-2">
+                            <!-- Servers and channels will be populated here -->
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2 text-sm text-gray-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                        </svg>
+                        <span>Click on channels to select/unselect them</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messaging Parameters -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Messaging Parameters</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="loopCount" class="block text-sm font-medium text-gray-700 mb-1">Number of Loops</label>
+                        <input type="number" id="loopCount" min="1" value="1" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="loopDelay" class="block text-sm font-medium text-gray-700 mb-1">Delay Between Loops (seconds)</label>
+                        <input type="number" id="loopDelay" min="1" value="5" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="sleepTime" class="block text-sm font-medium text-gray-700 mb-1">Sleep Between Messages (seconds)</label>
+                        <input type="number" id="sleepTime" min="1" value="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Log -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Status Log</h2>
+                <div id="statusLog" class="bg-gray-50 rounded-md p-4 h-[200px] overflow-y-auto font-mono text-sm"></div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-center gap-4">
+                <button onclick="saveConfig()" class="px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                    Save Configuration
+                </button>
+                <button onclick="startMessaging()" id="startBtn" class="px-6 py-3 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors">
+                    Start Messaging
+                </button>
+                <button onclick="stopMessaging()" id="stopBtn" class="px-6 py-3 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 opacity-50 cursor-not-allowed transition-all" disabled>
+                    Stop Messaging
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
